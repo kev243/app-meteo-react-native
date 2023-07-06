@@ -3,7 +3,9 @@ import { Container } from "../../components/Container/Container";
 import { Txt } from "../../components/Txt/Txt";
 import { s } from "./Forecast.style";
 import { TouchableOpacity, View } from "react-native";
-
+import { ForecastListItem } from "../../components/ForecastListItem/ForecastListItem";
+import { getWeatherInterpretation } from "../../services/meteo-service";
+import { DAYS, dateToDDMM } from "../../services/date.service";
 export function Forecast({}) {
   const { params } = useRoute();
   const nav = useNavigation();
@@ -23,5 +25,32 @@ export function Forecast({}) {
       </View>
     </View>
   );
-  return <Container>{header}</Container>;
+
+  const forecastList = (
+    <View style={s.forecastList}>
+      {params.time.map((time, index) => {
+        const code = params.weathercode[index];
+        const image = getWeatherInterpretation(code).image;
+        const date = new Date(time);
+        const day = DAYS[date.getDay()];
+        const temperature = params.temperature_2m_max[index];
+        return (
+          <ForecastListItem
+            image={image}
+            day={day}
+            key={time}
+            date={dateToDDMM(date)}
+            temperature={temperature.toFixed(0)}
+          />
+        );
+      })}
+    </View>
+  );
+
+  return (
+    <Container>
+      {header}
+      {forecastList}
+    </Container>
+  );
 }
